@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>07/1</title>
+    <script src="../fx.js"></script>
+    <style>
+      .fade {
+        opacity: 0;
+      }
+      .fade-in {
+        opacity: 1;
+        transition: opacity 0.3s;
+      }
+      .confirm{
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.2);
+        z-index: 2;
+      }
+      .confirm .body {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto;
+        width: 300px;
+        height: 160px;
+        background: #fff;
+        border-radius: 8px;
+        text-align: center;
+      }
+      .confirm .msg {
+      padding: 0 24px;
+      margin-top: 56px;
+      margin-bottom: 16px;
+      }
+      .confirm button {
+        padding: 8px;
+        width: 60px;
+        border: 0;
+        background: #eee;
+        border-radius: 8px;
+        margin: 3px;
+      }
+      .confirm button.ok {
+        border: 0;
+        color: #fff;
+        background: #000;
+      }
+      .images {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        padding: 16px;
+        overflow: auto;
+        text-align: center;
+      }
+      .image {
+        position: relative;
+        display: inline-block;
+        width: 160px;
+        margin: 4px;
+      }
+      .image .remove {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 24px;
+        height: 24px;
+        padding: 3px 0 0;
+        box-sizing: border-box;
+        text-align: center;
+        background: #000;
+        color: #fff;
+        font-weight: bold;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+      .image .box {
+        position: relative;
+        width: 160px;
+        height: 160px;
+        border: 1px solid #ccc;
+        margin-bottom: 8px;
+      }
+      .image img {
+        position: absolute;
+        top: 0px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        max-width: 90px;
+        max-height: 90px;
+        margin: auto;
+      }
+      .image .name {
+        text-align: center;
+        height: 20px;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div style="display: none;">
+        ## 프론트엔드에서 함수형/이터러블/동시성 프로그래밍
+
+        1. ES6 템플릿 리터럴 활용
+        
+        2. 이미지 목록 그리기
+        
+        3. 경고창 만들기
+          - confirm
+          - Promise 활용
+          - alert
+          - 중복 제거
+        
+        5. 이미지 동시성 다루기
+        
+        6. 페이지 띄우기
+
+  //**고차함수의 특징 (리펙토링 하는 방법)
+  //- 데이터형이 없다
+  //- 그렇기 때문에 다른 함수에서도 재사용이 가능하다
+  //ex) 아래의 Images.loader 에서 C.takeAllWithLimit(limit) 를 분리한 이유는
+  //    $.findAll('img') 가 시작코드인데 img를 선택해서 img.onload()부분에서 img를 다룬다는 데이터 형의 모습이 있다
+  //    이처럼 Images.loader 에서 img와 관련된 코드가 아닌 부분만 따로 뽑아서 외부로 빼면 그부분은 다른 함수에서도 
+  //    재사용이 가능하다
+  //    Images.loader 에서 C.takeAllWithLimit(limit) 를 제외한 나머지는 전부 img 데이터형 과 연관되어있다
+        
+    </div>
+    <script>
+      //아래는 템플릿 리터럴 사용방법이다
+      // const a = 10;
+      // const b = 5;
+      // console.log(`10 + 5 = ${a + b}`);
+      // //백틱(`)으로 선언하고 그 안의 ${} 를 하면 이 안에서는 숫자 연산이 가능하다
+
+      ////////////////////////////////
+      //가변인자함수에 대해서 (가변인자 함수는 입력값이 고정되지 않기 때문에 curry() 처리가 안된다)
+      //function calc(a,b){return a + b;}  //고정인자 2개를 받아 합을 구함
+
+      //하지만 인자가 몇개가 오던 처리할 수 있게 자바스크립트의 모든 함수는 내부에 기본적으로 
+      //arguments 라는 변수가 있는데 인자를 배열로 받아 저장하는 변수입니다.
+      //그래서 아래와 같이 함수를 생성해서 사용할 수 있는데 이걸 가변인자함수라고 부른다!
+      // function calc(){
+      //   var sum = 0;
+      //   for(let i in arguments){
+      //     results += arguments[i];
+      //   }
+      //   return sum;
+      // }
+      ///////////////////////////////////////
+    </script>
+    <script>
+      //DOM element 를만드는 함수들을 만들어보자
+      const $ = {};
+
+      //테그요소로 DOM에서 찾는 함수들을 만들어보자
+      //아래의 인풋인자 (sel, parent = document) 는 1개가 들어가거나 2개가 들어가도 되는 가변인자이기 때문에
+      //curry 처리를 할 수 없다 그래서 아래에서 find, findAll 로 따로 만들어서 curry 처리를 한 것이다!
+      $.qs = (sel, parent = document) => parent.querySelector(sel);
+      $.qsa = (sel, parent = document) => parent.querySelectorAll(sel);
+
+      //1) $.qs = document.querySelector('body');
+      //2) $.qs = sel => ducument.querySelector(sel);
+      //3) $.qs = (sel, parent) => document.querySelector(sel, parent);
+      //   document.querySelector는 parent를 받기도한다
+      //4) $.qs = document.querySelector.bind(document);  
+      //   미리 document를 binding 한 받는 인자와 전달인자가 같을땐 이렇게 bind 처리해도 된다
+
+      //인풋인자 sel에 이터러블 인자를 넣어 아래와 같이 find 함수를 만든다()
+      $.find = _.curry($.qs);
+      $.findAll = _.curry($.qsa);
+
+      //div를 만드는 함수이다
+      $.el = html => {
+        const wrap = document.createElement('div'); //div element를 만든다
+        wrap.innerHTML = html;    //인풋인자를 넣어준다
+        return wrap.children[0];  //첫번째 인자를 꺼낸다
+      };
+
+      $.append = _.curry((parent, child) => parent.appendChild(child));
+
+      $.closest = _.curry((sel, el) => el.closest(sel));
+      //closest() 는 선택한 element를 선택하고, 여러개가 한번에 선택된다면 가장 가까운 첫번째 조상요소를 리턴한다
+
+      $.remove = el => el.parentNode.removeChild(el);
+      //자신의 부모태그 선택 후 removeChild(자신) 로 자신태그를 없앤다
+
+      $.on = (event, f) => els => //event, f 두개의 인자로 함수를 만들고 그 함수에 els 인자를 받는다
+        _.each(el => el.addEventListener(event, f), _.isIterable(els) ? els : [els]);
+      // _.each(el => el.addEventListener(event, f) 함수에 
+      //_.isIterable(els) els가 이터러블인지 판단하고 인자로 넣는다
+      //_.each 는 이터러블 내부를 돌며 인자들에(el) DOM이벤트를 적용시킨다
+
+      $.addClass = _.curry((name, el) => el.classList.add(name));
+    </script>
+    <script>
+      const Ui = {};
+
+      //경고창을 커스텀하게 만든 것이다
+      //**아래에서 Promise 처리를 하고 resolve를 보내고  on 함수에서 이벤트 발생시 resolve를 실행시키면 
+      //  클릭하고나서 아래의 코드가 작동하게 되는걸 할 수 있다  
+      //  (이 함수를 사용할때 await로 받아서 비동기상황을 동기적으로 처리한다)
+      //  만약 promise처리를 안한다면 이 함수를 실행하자마자 코드가 처리된다
+  
+      Ui.message = _.curry((btns, msg) => new Promise(resolve => _.go(//btns는 이터러블객체, msg는 출력할 문자열
+        `
+        <div class='confirm'>
+          <div class='body'>
+            <div class='msg'>${msg}</div>
+            <div class='buttons'>
+              ${_.strMap(btn => `<button type='button' class="${btn.type}">${btn.name}</button>`, btns)}
+            </div>
+          </div>
+        </div>
+        `,
+        //_.strMap(버튼출력함수, 버튼정보이터러블)  로 버튼정보인자들에 맵으로 html코드를 적용시킨다
+        $.el,               //div 를 생성하고 위의 코드를 넣음
+        $.append($.qs('body')), //여기서 body에 위의 템플렛을 추가하고
+        //아래는 그 템플렛이 작동되는 이벤트 함수를 만드는 것이다
+        //pipe는 함수들을 더하는것까지 하지만 tap은 함수의 리턴값까지 나오게 한다
+        //tap 은 위에서 받은 인자들을 그대로 넘겨준다
+        ..._.map(btn => _.tap(  //배열 값을 밖으로 뺀다
+          $.find(`.${btn.type}`), //버튼의 타입(cancel, ok)를 찾는다
+          $.on('click', e => _.go(  //on 을 통해 DOM 이벤트를 적용시킨다
+            e.currentTarget,      //클릭한 값이다
+            $.closest('.confirm'),  //.confirm 클래스를 찾는다(DOM 에서)
+            $.remove,             //자신의 태그를 없앤다(cancel이든 ok 이든 클릭시 태그를 없앤다)
+            _ => resolve(btn.value) //버튼의 값을 resolve로 보낸다 (Ui.remover에서 삭제 판별을 위해 resolve로 보냄)
+          ))
+        ),btns)
+      )));
+      //위의 ..._map(함수,이터러블(btns)) 인데 이 함수는 리턴을 배열로 하기 때문에  
+      //[이벤트함수,이벤트함수] 처럼 배열안으로 이벤트 함수를 받기 때문에 이벤트 함수를 밖으로 
+      //빼기 위해 ... 을 사용하였다 (이 예에선 alert()의 경우 1개, confirm()의 경우 2개이다)
+      //... 로 펼쳐서 이벤트 함수 2개를 만드는 것이다(confirm()의 경우)
+
+        Ui.confirm = Ui.message([
+          {name: '취소', type: 'cancel', value: false },
+          {name: '확인', type: 'ok', value: true}
+        ]);
+        Ui.alert = Ui.message([
+          {name: '확인', type: 'ok', value: true }
+        ]);
+
+        //아래의 before, after 는 태그제거 전 후에 어떤 동작을 넣기 위해 만든 것이다(서버에 요청한다던지 하는..)
+        //default 값을 넣어 인풋값이 없더라도 처리할 수 있게 한다
+        Ui.remover = (btnSel, targetSel, before = a => a, after = a => a) => _.tap(
+          $.findAll(btnSel),  //버튼의 클래스명을 찾는다 
+          //Ui.message에서 리턴을 Promise 객체로 하므로 여기서 await로 함수를 받아서 이벤트 실행 후 
+          //코드가 동작하도록 만들었다
+          $.on('click', async ({currentTarget: ct}) => //찾은 태그에 이벤트를 적용시킨다
+          //**이벤트 객체 e의 e.currentTarget 프로퍼티의 값이 특정 시점 이후로 초기화 되기 때문에 
+          //  {currentTarget: ct} 처럼 구조분해화 해서 쓰면 좋다.
+          await Ui.confirm('정말 삭제하시겠습니까?') &&  
+          //await로 Ui.message()에서 보낸 _ => resolve(btn.value)  을 받아서 true, false 판별후 삭제
+          _.go(
+            ct,
+            $.closest(targetSel), //어떤 태그를 지울지 선택한다
+            _.tap(before),
+            $.remove,
+            _.tap(after)
+          ))
+        );
+
+    </script>
+
+    <script>
+      const Images = {};  //이미지를 다루는 모듈을 만들기 위해 빈객체로 선언 
+
+      Images.fetch = () => new Promise(resolve => setTimeout(() => resolve([
+        { name: "HEART", url: "https://s3.marpple.co/files/m2/t3/colored_images/45_1115570_1162087.png" },
+        { name: "하트", url: "https://s3.marpple.co/f1/2019/1/1235206_1548918825999_78819.png" },
+        { name: "2", url: "https://s3.marpple.co/f1/2018/1/1054966_1516076769146_28397.png" }, { name: "6", url: "https://s3.marpple.co/f1/2018/1/1054966_1516076919028_64501.png"},{"name":"도넛","url":"https://s3.marpple.co/f1/2019/1/1235206_1548918758054_55883.png"},{"name":"14","url":"https://s3.marpple.co/f1/2018/1/1054966_1516077199329_75954.png"},{"name":"15","url":"https://s3.marpple.co/f1/2018/1/1054966_1516077223857_39997.png"},{"name":"시계","url":"https://s3.marpple.co/f1/2019/1/1235206_1548918485881_30787.png"},{"name":"돈","url":"https://s3.marpple.co/f1/2019/1/1235206_1548918585512_77099.png"},{"name":"10","url":"https://s3.marpple.co/f1/2018/1/1054966_1516077029665_73411.png"},{"name":"7","url":"https://s3.marpple.co/f1/2018/1/1054966_1516076948567_98474.png"},{"name":"농구공","url":"https://s3.marpple.co/f1/2019/1/1235206_1548918719546_22465.png"},{"name":"9","url":"https://s3.marpple.co/f1/2018/1/1054966_1516077004840_10995.png"},{"name":"선물","url":"https://s3.marpple.co/f1/2019/1/1235206_1548918791224_48182.png"},{"name":"당구공","url":"https://s3.marpple.co/f1/2019/1/1235206_1548918909204_46098.png"},{"name":"유령","url":"https://s3.marpple.co/f1/2019/1/1235206_1548918927120_12321.png"},{"name":"원숭이","url":"https://s3.marpple.co/f1/2019/1/1235206_1548919417134_80857.png"},{"name":"3","url":"https://s3.marpple.co/f1/2018/1/1054966_1516076802375_69966.png"},{"name":"16","url":"https://s3.marpple.co/f1/2018/1/1054966_1516077254829_36624.png"},{"name":"안경","url":"https://s3.marpple.co/f1/2019/1/1235206_1548918944668_23881.png"},{"name":"폭죽","url":"https://s3.marpple.co/f1/2019/1/1235206_1548919005789_67520.png"},{"name":"폭죽 2","url":"https://s3.marpple.co/f1/2019/1/1235206_1548919027834_48946.png"},{"name":"박","url":"https://s3.marpple.co/f1/2019/1/1235206_1548919062254_67900.png"},{"name":"톱니바퀴","url":"https://s3.marpple.co/f1/2019/1/1235206_1548919302583_24439.png"},{"name":"11","url":"https://s3.marpple.co/f1/2018/1/1054966_1516077078772_79004.png"},{"name":"핫도그","url":"https://s3.marpple.co/f1/2019/1/1235206_1548919086961_23322.png"},{"name":"고기","url":"https://s3.marpple.co/f1/2019/1/1235206_1548919274214_33127.png"},{"name":"책","url":"https://s3.marpple.co/f1/2019/1/1235206_1548919326628_13977.png"},{"name":"돋보기","url":"https://s3.marpple.co/f1/2019/1/1235206_1548919363855_26766.png"},{"name":"집","url":"https://s3.marpple.co/f1/2019/1/1235206_1548919395033_19373.png"},{"name":"사람","url":"https://s3.marpple.co/f1/2019/1/1235206_1548918696715_44274.png"},{"name":"연필","url":"https://s3.marpple.co/f1/2019/1/1235206_1548919437239_32501.png"},{"name":"파일","url":"https://s3.marpple.co/f1/2019/1/1235206_1548919468582_23707.png"},{"name":"스피커","url":"https://s3.marpple.co/f1/2019/1/1235206_1548919495804_49080.png"},{"name":"트로피 ","url":"https://s3.marpple.co/f1/2019/1/1235206_1548918438617_69000.png"},{"name":"카메라","url":"https://s3.marpple.co/f1/2019/1/1235206_1548919847041_33220.png"},{"name":"그래프","url":"https://s3.marpple.co/f1/2019/1/1235206_1548918521301_43877.png"},{"name":"가방","url":"https://s3.marpple.co/f1/2019/1/1235206_1548918642937_11925.png"},{"name":"입술","url":"https://s3.marpple.co/f1/2019/1/1235206_1548919886042_10049.png"},{"name":"fire","url":"https://s3.marpple.co/f1/2019/1/1235206_1548920036111_19302.png"},{"name":"TV","url":"https://s3.marpple.co/f1/2019/1/1235206_1548920054808_42469.png"},{"name":"핸드폰","url":"https://s3.marpple.co/f1/2019/1/1235206_1548920109727_43404.png"},{"name":"노트북","url":"https://s3.marpple.co/f1/2019/1/1235206_1548920142776_26474.png"},{"name":"전구","url":"https://s3.marpple.co/f1/2019/1/1235206_1548920181784_14964.png"},{"name":"장미","url":"https://s3.marpple.co/f1/2019/1/1235206_1548920264149_78607.png"},{"name":"맥주","url":"https://s3.marpple.co/f1/2019/1/1235206_1548920312701_18073.png"},{"name":"마이크","url":"https://s3.marpple.co/f1/2019/1/1235206_1548920397855_39832.png"},{"name":"별","url":"https://s3.marpple.co/f1/2019/1/1235206_1548920420823_49166.png"},{"name":"와이파이","url":"https://s3.marpple.co/f1/2019/1/1235206_1548920438005_35247.png"},{"name":"헤드폰","url":"https://s3.marpple.co/f1/2019/1/1235206_1548920468136_82088.png"},{"name":"peace","url":"https://s3.marpple.co/f1/2019/1/1235206_1548920538719_19072.png"},{"name":"계산기","url":"https://s3.marpple.co/f1/2019/1/1235206_1548920348341_40080.png"},{"name":"poo 2","url":"https://s3.marpple.co/f1/2019/1/1235206_1548924259247_12839.png"},{"name":"poo 3","url":"https://s3.marpple.co/f1/2019/1/1235206_1548924850867_72121.png"},{"name":"poo 4","url":"https://s3.marpple.co/f1/2019/1/1235206_1548925154648_40289.png"},{"name":"poo","url":"https://s3.marpple.co/f1/2019/1/1235206_1548918988097_38121.png"},{"name":"모니터","url":"https://s3.marpple.co/f1/2016/7/1043023_1469769774483.png"},{"name":"talk","url":"https://s3.marpple.co/f1/2019/1/1235206_1548927111573_76831.png"},{"name":"keyboard","url":"https://s3.marpple.co/f1/2018/1/1054966_1516330864360_25866.png"},{"name":"daily 2","url":"https://s3.marpple.co/f1/2019/1/1235206_1548926169159_58295.png"},{"name":"daily","url":"https://s3.marpple.co/f1/2018/7/1199664_1531814945451_49451.png"},{"name":"편지","url":"https://s3.marpple.co/f1/2019/1/1235206_1548920087850_99421.png"},{"name":"sns 하단바 2","url":"https://s3.marpple.co/f1/2019/1/1235206_1548917218903_88079.png"},{"name":"sns 하단바","url":"https://s3.marpple.co/f1/2019/1/1235206_1548917192465_28365.png"},{"name":"sns 이모지 6","url":"https://s3.marpple.co/f1/2019/1/1235206_1548927313417_99007.png"},{"name":"sns 이모지","url":"https://s3.marpple.co/f1/2019/1/1235206_1548927219485_18861.png"},{"name":"13","url":"https://s3.marpple.co/f1/2018/1/1054966_1516077164559_59630.png"},{"name":"iphone","url":"https://s3.marpple.co/f1/2016/7/1043023_1469769886837.png"},{"name":"아이패드","url":"https://s3.marpple.co/f1/2016/7/1043023_1469769820297.png"},{"name":"컴퓨터","url":"https://s3.marpple.co/f1/2016/7/1043023_1469769802862.png"},{"name":"5","url":"https://s3.marpple.co/f1/2018/1/1054966_1516076888018_74741.png"},{"name":"poo 1","url":"https://s3.marpple.co/f1/2019/1/1235206_1548924230868_28487.png"},{"name":"Sns icon_똥 안경","url":"https://s3.marpple.co/f1/2017/2/1043404_1487211657799.png"},{"name":"Sns icon_똥 웃음","url":"https://s3.marpple.co/f1/2017/2/1043404_1487211686108.png"},{"name":"4","url":"https://s3.marpple.co/f1/2018/1/1054966_1516076850148_36610.png"},{"name":"Sns icon_똥 놀림","url":"https://s3.marpple.co/f1/2017/2/1043404_1487211670017.png"},{"name":"달력","url":"https://s3.marpple.co/f1/2019/1/1235206_1548919531014_35045.png"},{"name":"자물쇠","url":"https://s3.marpple.co/f1/2019/1/1235206_1548918410738_59815.png"},{"name":"손 이모지","url":"https://s3.marpple.co/f1/2019/1/1235206_1548918353391_54897.png"},{"name":"Sns icon_손바닥","url":"https://s3.marpple.co/f1/2017/2/1043404_1487210472038.png"},{"name":"Sns icon_검지","url":"https://s3.marpple.co/f1/2017/2/1043404_1487210393226.png"},{"name":"Sns icon_롹","url":"https://s3.marpple.co/f1/2017/2/1043404_1487210522978.png"},{"name":"Sns icon_하이파이브","url":"https://s3.marpple.co/f1/2017/2/1043404_1487210538695.png"},{"name":"Sns icon_브이","url":"https://s3.marpple.co/f1/2017/2/1043404_1487210508758.png"},{"name":"Sns icon_중지","url":"https://s3.marpple.co/f1/2017/2/1043404_1487210428137.png"},{"name":"Sns icon_주먹","url":"https://s3.marpple.co/f1/2017/2/1043404_1487210372629.png"},{"name":"Sns icon_박수","url":"https://s3.marpple.co/f1/2017/2/1043404_1487210444994.png"},{"name":"Sns icon_따봉","url":"https://s3.marpple.co/f1/2017/2/1043404_1487210488684.png"},{"name":"손 이모지 2","url":"https://s3.marpple.co/f1/2019/1/1235206_1548921736267_35010.png"},{"name":"손 이모지 3","url":"https://s3.marpple.co/f1/2019/1/1235206_1548922150829_10878.png"}
+      ]),200));
+
+      //위의 이미지들은 Images.fetch().then(console.log);  로 200미리초 후에 값들을 찍어볼 수 있다
+
+      //[1,2,3].toString()    이렇게 배열을 문자열로 만들면 '1,2,3'  처럼 인자들 사이에 , 콤마가 출력된다
+      //그래서 아래와 같이 출력하도록 함수를(string) 만들고 
+      const string = iter => _.reduce((a,b) => `${a}${b}`,iter);
+      //지연적처리를 위해 L.map을 적용시켜 위에서 만든 함수와 합친다
+      _.strMap = _.curry(_.pipe(L.map, string));
+      ////////////////////////////////////////////
+      // <div class="image">
+      //         <div class="box"><img src="" lazy-src="https://s3.marpple.co/files/m2/t3/colored_images/45_1115570_1162087.png" class="fade" alt=""></div>
+      //         <div class="name">HEART</div>
+      //         <div class="remove">x</div>
+      //       </div>
+      //,(만약 String 의 reduce에서 `${a},${b}` 사이에 콤마를 넣으면 여기 찍힌다)    
+      // <div class="image">
+      //   <div class="box"><img src="" lazy-src="https://s3.marpple.co/f1/2019/1/1235206_1548918825999_78819.png" class="fade" alt=""></div>
+      //   <div class="name">하트</div>
+      //   <div class="remove">x</div>
+      // </div>
+
+      // .... 위와 같은템플릿이 계속 만들어진다
+      ///////////////////////////////////////////
+
+      //이미지들을 받아서 넣는 템플릿을 만들어보자 (참고로 아래서 imgs 처럼 줄여쓴것은 보통 인풋인자 이다 (일종의 규약))
+      //imgs 이터러블을 받아서 _.strMap(함수, 이터러블(imgs)) 로 템플릿들을 처리하자
+      Images.tmpl = imgs => ` 
+        <div class="images">
+          ${_.strMap(img => `
+            <div class="image">
+              <div class="box"><img src="" lazy-src="${img.url}" class="fade" alt=""></div>
+              <div class="name">${img.name}</div>
+              <div class="remove">x</div>
+            </div>
+          `, imgs)}
+        </div>
+      `;
+
+      //img src="" 처럼 일단 이미지 링크는 비워두고  lazy-src="${img.url} 이곳에 이미지 링크를 넣고  
+      //위의 css 에서 화면에 안보이게 설정한 클래스인 fade를 넣고
+      //아래의 Image.loader 에서 lazy-src="${img.url}  이곳의 img.url  =>  img src="" 일로 보내고 
+      //이미지를 로딩하는(fadein 효과를 한번에 적용하는 갯수 설정) 함수 (재사용할 수 있도록 함수화 함)
+      Images.loader = limit => _.tap( //선택한 태그 그대로 보내기 위해 tap 을 사용
+        $.findAll('img'),   //img 태그를 모두 찾는다
+        L.map(img => _ => new Promise(resolve => {  //** 여기서 고차함수로 promise평가를 한번 미룬다
+        //지연적으로 동작하는 L.map() 으로  lazy-src="${img.url} 의 img.url  =>  img src="" 로 보내는 작업을 
+        //promise 객체로 만들어(resolve) 처리시점을 조절한다 
+          img.onload = () => resolve(img);
+          //img.onload() 가 일어난 후에 resolve(img)를 통해 img를 전달한다
+          //객체.onload() 는 객체가 로드될때 발생한다
+          img.src = img.getAttribute('lazy-src'); //이때 img.src 에 lazy-src에 있는 img.url을 넣어준다
+        })),  //**DOM 객체에 .src 를 하고 이미지이름이나 속성을 넣어주면 이미지가 바뀐다
+        C.takeAllWithLimit(limit), //limit 숫자의 갯수만큼 평가해서 아래의 fadein 효과 클래스를 설정한다
+        _.each(_.each($.addClass('fade-in'))) //이터러블 인자에 각각 태그에 css에서 만든 fade-in 효과를 넣는다
+      );                    //{[f,f,f,f],[f,f,f,f] .....} 구조이기 때문에 _.each()를 두번쓴다
+
+
+      _.groupBySize = _.curry((size, iter) => {
+        let r = L.range(Infinity);   //계속 지연적으로 생성되는 range()를 만든다
+        return _.groupBy(_ => Math.floor(r.next().value / size), iter);
+      });
+  //**(Images.loader() 안의 L.map 에서 고차함수처리를 하지 않으면  위에서 _ 부분에 promise값이 풀린 부분이 
+  //   iter로 들어온다) - img.fade 값이 나옴(원래는 프로미스값이 들어가야함)
+  //  promise 값을 보내야 _.each(_.each($.addClass('fade-in'))) 여기서 배열 그룹으로 묶인 promise 값을 
+  //  {[f,f,f,f],[f,f,f,f] .....} 구조에서 [f,f,f,f] 를 순차적으로 풀어서 size 숫자만큼 효과가(순차적으로) 나타난다
+
+      C.takeAllWithLimit = _.curry((limit = Infinity, iter) => _.go(
+        iter,
+        _.groupBySize(limit),// limit 갯수만큼 배열로 그룹을 나눈다 
+        L.values,
+        // 값들을 뽑아낸다(groupBy 함수가 {} 객체로 리턴하기 때문에 값만 뽑기위해 사용) 없으면 undefined뜸
+        L.map(L.map(f => f())), 
+        //이터러블 객체 내부의 배열의 함수를(Image.loader()의 L.map 에서 고차함수처리한것을) 실행한다 
+        // {[f,f,f,f],[f,f,f,f] .....} 이렇게 되어 있는 배열 내부의 함수 f 를 f()로 바꿔준다
+        L.map(C.takeAll)
+        // 배열별로({[f,f,f,f],[f,f,f,f] .....} 중 [f,f,f,f] 씩 한번에 평가)평가를 하도록 만든다 
+        //(이걸 빼면 하나하나씩 평가한다)
+      ));
+
+      _.go(
+        Images.fetch(), //이미지들을 불러온다 (Promise 에서 resolve()를 통해 이미지 객체를 보낸다)
+        Images.tmpl,    //이미지들을 템플렛에 넣는다
+        $.el,           //템플렛을 div로 만든다
+        $.append($.qs('body')), //body 태그를 부모로 자식 태그를 추가시킨다
+        //$.qs('body') 이부분은 document.querySelector('body')  이고
+        //$.append(인자, 이터러블) 는 인자.appendChild(이터러블인자) 이다
+        Ui.remover('.remove', '.image', _ => console.log('서버통신!')),
+        //버튼클래스 선택, 지울타겟태그 선택, before 부분에 콘솔을 찍는 함수를 넣는다
+        //before, after 자리에 함수로 넣지 않고 그냥 console.log()를 넣으면 지연적으로 실행되지않고 바로 실행된다
+        Images.loader(4)
+      );
+    </script>
+
+  </body>
+</html>
